@@ -1,0 +1,219 @@
+{
+  "neo": "0.15.0.dev0",
+  "numpy": "2.5.4",
+  "cases": [
+    {
+      "case": "normal",
+      "file_bytes": 340,
+      "ticks_written_and_read": [
+        100,
+        101,
+        102,
+        103
+      ],
+      "tick_steps_modulo_uint32": [
+        1,
+        1,
+        1
+      ],
+      "parse_succeeded": true,
+      "warnings": [],
+      "segments": 1,
+      "samples": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "nominal_relative_times_us": [
+        0.0,
+        33.333333333333336,
+        66.66666666666667,
+        100.0
+      ],
+      "nominal_exclusive_t_stop_us": 133.33333333333334,
+      "neoio_analogsignal_times_match_nominal": true,
+      "known_acquisition_relative_times_us": [
+        0.0,
+        33.333333333333336,
+        66.66666666666667,
+        100.0
+      ],
+      "sample_time_error_us": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "known_exclusive_t_stop_us": 133.33333333333334
+    },
+    {
+      "case": "one_missing_tick",
+      "file_bytes": 340,
+      "ticks_written_and_read": [
+        100,
+        101,
+        103,
+        104
+      ],
+      "tick_steps_modulo_uint32": [
+        1,
+        2,
+        1
+      ],
+      "parse_succeeded": true,
+      "warnings": [],
+      "segments": 1,
+      "samples": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "nominal_relative_times_us": [
+        0.0,
+        33.333333333333336,
+        66.66666666666667,
+        100.0
+      ],
+      "nominal_exclusive_t_stop_us": 133.33333333333334,
+      "neoio_analogsignal_times_match_nominal": true,
+      "known_acquisition_relative_times_us": [
+        0.0,
+        33.333333333333336,
+        100.0,
+        133.33333333333334
+      ],
+      "sample_time_error_us": [
+        0.0,
+        0.0,
+        -33.333333333333336,
+        -33.333333333333336
+      ],
+      "known_exclusive_t_stop_us": 166.66666666666666
+    },
+    {
+      "case": "uint32_rollover",
+      "file_bytes": 340,
+      "ticks_written_and_read": [
+        4294967294,
+        4294967295,
+        0,
+        1
+      ],
+      "tick_steps_modulo_uint32": [
+        1,
+        1,
+        1
+      ],
+      "parse_succeeded": true,
+      "warnings": [],
+      "segments": 1,
+      "samples": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "nominal_relative_times_us": [
+        0.0,
+        33.333333333333336,
+        66.66666666666667,
+        100.0
+      ],
+      "nominal_exclusive_t_stop_us": 133.33333333333334,
+      "neoio_analogsignal_times_match_nominal": true,
+      "known_acquisition_relative_times_us": [
+        0.0,
+        33.333333333333336,
+        66.66666666666667,
+        100.0
+      ],
+      "sample_time_error_us": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "known_exclusive_t_stop_us": 133.33333333333334
+    },
+    {
+      "case": "missing_tick_at_rollover",
+      "file_bytes": 340,
+      "ticks_written_and_read": [
+        4294967294,
+        0,
+        1,
+        2
+      ],
+      "tick_steps_modulo_uint32": [
+        2,
+        1,
+        1
+      ],
+      "parse_succeeded": true,
+      "warnings": [],
+      "segments": 1,
+      "samples": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "nominal_relative_times_us": [
+        0.0,
+        33.333333333333336,
+        66.66666666666667,
+        100.0
+      ],
+      "nominal_exclusive_t_stop_us": 133.33333333333334,
+      "neoio_analogsignal_times_match_nominal": true,
+      "known_acquisition_relative_times_us": [
+        0.0,
+        66.66666666666667,
+        100.0,
+        133.33333333333334
+      ],
+      "sample_time_error_us": [
+        0.0,
+        -33.333333333333336,
+        -33.333333333333336,
+        -33.333333333333336
+      ],
+      "known_exclusive_t_stop_us": 166.66666666666666
+    },
+    {
+      "case": "clock_reset",
+      "file_bytes": 340,
+      "ticks_written_and_read": [
+        100,
+        101,
+        0,
+        1
+      ],
+      "tick_steps_modulo_uint32": [
+        1,
+        4294967195,
+        1
+      ],
+      "parse_succeeded": true,
+      "warnings": [],
+      "segments": 1,
+      "samples": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "nominal_relative_times_us": [
+        0.0,
+        33.333333333333336,
+        66.66666666666667,
+        100.0
+      ],
+      "nominal_exclusive_t_stop_us": 133.33333333333334,
+      "neoio_analogsignal_times_match_nominal": true,
+      "note": "Counter reset: elapsed time is unknown; do not interpret it as a 2**32-tick data gap."
+    }
+  ]
+}
