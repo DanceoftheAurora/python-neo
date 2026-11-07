@@ -1,0 +1,123 @@
+Public SpikeGadgets fixture validation for Neo #1856 / PR #1949
+
+Outcome
+No acquisition timestamp discontinuity was observed in the three structurally
+valid public recording fixtures. Across their 14,230 stored packets, all 14,227
+adjacent transitions are exactly +1. No duplicate, forward jump, reset candidate,
+or normal uint32 rollover occurs in those excerpts. This does not reproduce a
+real recording with the timing problem raised in #1856 and does not establish
+that other recordings are unaffected. We do not have the user's own affected
+recording. The earlier missing-tick/reset demonstrations remain synthetic.
+
+The valid excerpts contain only about 0.267 s, 0.000067 s and 0.208 s of data at
+30 kHz, respectively. Their short duration severely limits negative evidence.
+The native getter retains nonzero initial timestamps (6336425 and 466437 in two
+files), whereas nominal signal start remains zero as documented by Neo.
+
+Two additional public stubs are excluded from complete-file timing evidence:
+* NP2: 299 complete packets followed by 789 of the declared 790 bytes in the
+  final packet. Every complete packet has a correct 0x55 marker and the complete
+  prefix advances by one; the HTTP payload has one fewer byte than 300 packets.
+* MSH: 29 declared-size packets plus a partial tail; 28 of 29 checked start
+  markers fail. Its payload contains 15,532 EF BF BD byte sequences. Values
+  extracted at nominal timestamp offsets are not reliable acquisition ticks.
+  Their jumps are NOT evidence of real missing samples or clock resets.
+No data were edited, regenerated, repaired, or injected. Causes of the two
+stub-format mismatches were not investigated and are not asserted here.
+
+Method and provenance
+The official Neo test_spikegadgetsrawio.py at base d50b9b9 lists all five files.
+The configured testing repository is the public GIN NeuralEnsemble dataset:
+https://gin.g-node.org/NeuralEnsemble/ephy_testing_data
+README provenance:
+https://gin.g-node.org/NeuralEnsemble/ephy_testing_data/src/master/spikegadgets/README.md
+Contributors supplied recording excerpts; the NP2 and MSH fixtures are
+explicitly cropped/anonymised. Exact biological/bench/simulator acquisition
+conditions are not established for every file, so this report does not claim
+all five are biological recordings. None were synthesised by this validation.
+The documented header-only missing-channel stub was intentionally excluded.
+
+All five HTTP payloads were downloaded as raw bytes using urllib response.read()
+and Path.write_bytes(), without any connector or text decode/encode conversion.
+Byte counts equal the HTTP Content-Length values checked before downloading.
+For both excluded stubs, the URL equals the GIN file-page Download link; their
+509,398/719,992 byte lengths agree with the page's rounded 497 KB/703 KB sizes.
+No independent annex checksum was obtained, so the cause and provenance of the
+format discrepancy remain undetermined; this is not an upstream defect claim.
+Total fixture body bytes: 20,969,008 (cap: 100,000,000); each file is below 50 MB.
+Preflight range reads/HTML and the small Python dependency install also leave
+actual transfer comfortably below 100 MB. Download metadata is in download.json.
+The three valid fixtures have no trailing bytes and every packet starts 0x55.
+Independent decoding uses XML-derived packet dimensions and struct.unpack_from
+('<I', original_file_bytes, packet_offset + timestamp_offset), rather than the
+getter's ndarray view. The getter matches every decoded value in all five files;
+that establishes byte-extraction agreement, not validity of a malformed payload.
+Read-only/shared-memory semantics, six slices per file, stream sample counts and
+nominal segment bounds were checked. No repository files were modified.
+
+Getter source was verified byte-for-byte against published PR head
+cfe51171b0e24883e5eacc8f379567f52f00a410:
+https://github.com/NeuralEnsemble/python-neo/pull/1949
+Module SHA256: 92d169cb11fcf5759a148881b7dfd233ac2bedd2733aba90bc7cece2bbffa824
+Other executable Neo code comes from local base d50b9b9. Python 3.12.14,
+NumPy 2.5.4, quantities 0.16.4, macOS arm64. PyPI neo 0.14.6 was installed only
+to provide importlib distribution metadata; sys.path loads all Neo executable
+source from the stated local worktree. The absolute local import path is omitted from the published JSON.
+The first attempt lacked that metadata and failed before any file analysis;
+after installing it, validation passed. Two existing missing-gain warnings are
+captured in validation.log and do not affect timestamp extraction.
+
+Re-run with Python 3.12, NumPy 2.5.4, quantities 0.16.4 and installed Neo distribution metadata:
+  git clone https://github.com/DanceoftheAurora/python-neo.git neo-checkout
+  git -C neo-checkout checkout cfe51171b0e24883e5eacc8f379567f52f00a410
+  python validate.py --neo-source ./neo-checkout --download
+Add --download only when fixtures have not been downloaded. Downloads have no
+retry loop and reject changed/unknown content sizes. Expected module hash is
+pinned to PR #1949's checked head. Raw data/.venv should not be published.
+
+Per-file evidence
+
+20210225_em8_minirec2_ac.rec
+  bytes=8707791; SHA256=163ddd495390c8fe91a86ac7717f29ac431746ba02e8a749063f9b840ce7363b
+  packets=8000; retained_seconds=0.266666667; first=6336425; last=6344424
+  packet_bytes=1078; timestamp_offset=50; trailing_bytes=0; invalid_start_markers=0
+  Packet framing checks pass; transition counts describe stored acquisition ticks.
+  transitions={'contiguous_increment_one': 7999, 'normal_uint32_rollovers': 0, 'duplicate_tick': 0, 'forward_jump': 0, 'backward_jump_not_normal_rollover': 0}
+  Getter agrees with every independently decoded word; read-only, shared view; six slices pass.
+  URL: https://gin.g-node.org/NeuralEnsemble/ephy_testing_data/raw/master/spikegadgets/20210225_em8_minirec2_ac.rec
+
+W122_06_09_2019_1_fromSD.rec
+  bytes=19271; SHA256=b005594ca490d77659ae74544c7ead099582407a171b46317e4a85ed42015ecc
+  packets=2; retained_seconds=0.000066667; first=0; last=1
+  packet_bytes=270; timestamp_offset=10; trailing_bytes=0; invalid_start_markers=0
+  Packet framing checks pass; transition counts describe stored acquisition ticks.
+  transitions={'contiguous_increment_one': 1, 'normal_uint32_rollovers': 0, 'duplicate_tick': 0, 'forward_jump': 0, 'backward_jump_not_normal_rollover': 0}
+  Getter agrees with every independently decoded word; read-only, shared view; six slices pass.
+  URL: https://gin.g-node.org/NeuralEnsemble/ephy_testing_data/raw/master/spikegadgets/W122_06_09_2019_1_fromSD.rec
+
+SpikeGadgets_test_data_2xNpix1.0_20240318_173658.rec
+  bytes=11012556; SHA256=5c2be0e45380b0e9fa6866ad3d3c9d70a5a93ebb07c3f743d5aacbccfee53462
+  packets=6228; retained_seconds=0.207600000; first=466437; last=472664
+  packet_bytes=1688; timestamp_offset=148; trailing_bytes=0; invalid_start_markers=0
+  Packet framing checks pass; transition counts describe stored acquisition ticks.
+  transitions={'contiguous_increment_one': 6227, 'normal_uint32_rollovers': 0, 'duplicate_tick': 0, 'forward_jump': 0, 'backward_jump_not_normal_rollover': 0}
+  Getter agrees with every independently decoded word; read-only, shared view; six slices pass.
+  URL: https://gin.g-node.org/NeuralEnsemble/ephy_testing_data/raw/master/spikegadgets/SpikeGadgets_test_data_2xNpix1.0_20240318_173658.rec
+
+neuropixels2_4shank/20260122_134412_merged_cropped_1min_NP2.rec
+  bytes=509398; SHA256=0870a4ce6b6d436016b6de22e0a427f06cb8abb368899f514a6ce40fdd7ac2b4
+  packets=299; retained_seconds=0.009966667; first=832135; last=832433
+  packet_bytes=790; timestamp_offset=18; trailing_bytes=789; invalid_start_markers=0
+  Incomplete trailing packet; complete prefix observations only. Excluded from complete-file timing evidence.
+  transitions={'contiguous_increment_one': 298, 'normal_uint32_rollovers': 0, 'duplicate_tick': 0, 'forward_jump': 0, 'backward_jump_not_normal_rollover': 0}
+  Getter agrees with every independently decoded word; read-only, shared view; six slices pass.
+  URL: https://gin.g-node.org/NeuralEnsemble/ephy_testing_data/raw/master/spikegadgets/neuropixels2_4shank/20260122_134412_merged_cropped_1min_NP2.rec
+
+msh_1024ch/msh_1024ch.rec
+  bytes=719992; SHA256=ed79ddee536382487efed92d2d6a7b6445ef02adc41c6895d01e8325ef7d49d6
+  packets=29; retained_seconds=0.000966667; first=3220142402; last=4022190063
+  packet_bytes=2070; timestamp_offset=18; trailing_bytes=2069; invalid_start_markers=28
+  Packet framing checks fail; decoded words must NOT be interpreted as acquisition gaps, resets or rollovers. Excluded from timing evidence.
+  transitions={'contiguous_increment_one': 0, 'normal_uint32_rollovers': 0, 'duplicate_tick': 4, 'forward_jump': 13, 'backward_jump_not_normal_rollover': 11}
+  Getter agrees with every independently decoded word; read-only, shared view; six slices pass.
+  URL: https://gin.g-node.org/NeuralEnsemble/ephy_testing_data/raw/master/spikegadgets/msh_1024ch/msh_1024ch.rec
